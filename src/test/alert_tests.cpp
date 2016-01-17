@@ -119,11 +119,11 @@ BOOST_FIXTURE_TEST_SUITE(Alert_tests, ReadAlerts)
 BOOST_AUTO_TEST_CASE(AlertApplies)
 {
     SetMockTime(11);
-    const std::vector<unsigned char>& alertKey = Params(CBaseChainParams::MAIN).AlertKey();
+    const std::vector<CAlertKeyData>& alertKeys = Params(CBaseChainParams::MAIN).AlertKeys();
 
     BOOST_FOREACH(const CAlert& alert, alerts)
     {
-        BOOST_CHECK(alert.CheckSignature(alertKey));
+        BOOST_CHECK(alert.CheckForAnyValidSignature(alertKeys));
     }
 
     BOOST_CHECK(alerts.size() >= 3);
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(AlertApplies)
 BOOST_AUTO_TEST_CASE(AlertNotify)
 {
     SetMockTime(11);
-    const std::vector<unsigned char>& alertKey = Params(CBaseChainParams::MAIN).AlertKey();
+    const std::vector<CAlertKeyData>& alertKeys = Params(CBaseChainParams::MAIN).AlertKeys();
 
     boost::filesystem::path temp = GetTempPath() /
         boost::filesystem::unique_path("alertnotify-%%%%.txt");
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(AlertNotify)
     mapArgs["-alertnotify"] = std::string("echo %s >> ") + temp.string();
 
     BOOST_FOREACH(CAlert alert, alerts)
-        alert.ProcessAlert(alertKey, false);
+        alert.ProcessAlert(alertKeys, false);
 
     std::vector<std::string> r = read_lines(temp);
     BOOST_CHECK_EQUAL(r.size(), 4u);
