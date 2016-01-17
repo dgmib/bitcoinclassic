@@ -158,7 +158,7 @@ bool CAlert::CheckSignature(const std::vector<unsigned char>& alertKey) const
     return true;
 }
 
-bool CAlert::CheckForAnyValidSignature(const std::vector<CAlertKeyData>& alertKeys) const
+bool CAlert::CheckForAnyValidSignature(const std::vector<CAlertKeyData>& alertKeys)
 {
     strSender.clear();
 
