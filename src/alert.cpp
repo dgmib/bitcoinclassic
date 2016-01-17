@@ -165,10 +165,10 @@ bool CAlert::CheckForAnyValidSignature(const std::vector<CAlertKeyData>& alertKe
     // Loop through valid alert public keys and check if this signature is valid for any of them.
     for (std::vector<CAlertKeyData>::iterator it = alertKeys.begin(); it != alertKeys.end(); ++it)
     {
-        if (!CheckSignature(it.pubKey))
+        if (!CheckSignature(it->pubKey))
             continue;
 
-        strSender = it.Owner;
+        strSender = it->owner;
 
         return true;
     }
