@@ -87,6 +87,7 @@ void CAlert::SetNull()
     CUnsignedAlert::SetNull();
     vchMsg.clear();
     vchSig.clear();
+	strSender.clear();
 }
 
 bool CAlert::IsNull() const
@@ -148,13 +149,31 @@ bool CAlert::RelayTo(CNode* pnode) const
 bool CAlert::CheckSignature(const std::vector<unsigned char>& alertKey) const
 {
     CPubKey key(alertKey);
-    if (!key.Verify(Hash(vchMsg.begin(), vchMsg.end()), vchSig))
-        return error("CAlert::CheckSignature(): verify signature failed");
+	if (!key.Verify(Hash(vchMsg.begin(), vchMsg.end()), vchSig))
+		return false;
 
     // Now unserialize the data
     CDataStream sMsg(vchMsg, SER_NETWORK, PROTOCOL_VERSION);
     sMsg >> *(CUnsignedAlert*)this;
     return true;
+}
+
+bool CAlert::CheckForAnyValidSignature(const std::vector<CAlertKeyData>& alertKeys) const
+{
+	// Loop through valid alert public keys and check if this signature is valid for any of them.
+	for (std::vector<CAlertKeyData>::iterator it = alertKeys.begin(); it != alertKeys.end(); ++it)
+	{
+		if (!CheckSignature(it.pubKey))
+			continue;
+
+		strSender = it.Owner;
+
+		return true;
+	}
+
+	strSender.clear();
+
+	return error("CAlert::CheckForAnyValidSignature(): verify signature failed for all alert keys");
 }
 
 CAlert CAlert::getAlertByHash(const uint256 &hash)
@@ -169,10 +188,11 @@ CAlert CAlert::getAlertByHash(const uint256 &hash)
     return retval;
 }
 
-bool CAlert::ProcessAlert(const std::vector<unsigned char>& alertKey, bool fThread)
+bool CAlert::ProcessAlert(const std::vector<CAlertKeyData>& alertKeys, bool fThread)
 {
-    if (!CheckSignature(alertKey))
-        return false;
+	if (!CheckForAnyValidSignature(alertKeys))
+		return false;
+
     if (!IsInEffect())
         return false;
 

@@ -6,6 +6,7 @@
 #ifndef BITCOIN_CHAINPARAMS_H
 #define BITCOIN_CHAINPARAMS_H
 
+#include "alert.h"
 #include "chainparamsbase.h"
 #include "consensus/params.h"
 #include "primitives/block.h"
@@ -54,7 +55,7 @@ public:
 
     const Consensus::Params& GetConsensus() const { return consensus; }
     const CMessageHeader::MessageStartChars& MessageStart() const { return pchMessageStart; }
-    const std::vector<unsigned char>& AlertKey() const { return vAlertPubKey; }
+    const std::vector<CAlertKeyData>& AlertKeys() const { return vAlertKeys; }
     int GetDefaultPort() const { return nDefaultPort; }
 
     const CBlock& GenesisBlock() const { return genesis; }
@@ -82,7 +83,7 @@ protected:
     Consensus::Params consensus;
     CMessageHeader::MessageStartChars pchMessageStart;
     //! Raw pub key bytes for the broadcast alert signing key.
-    std::vector<unsigned char> vAlertPubKey;
+    std::vector<CAlertKeyData> vAlertKeys;
     int nDefaultPort;
     long nMaxTipAge;
     uint64_t nPruneAfterHeight;
