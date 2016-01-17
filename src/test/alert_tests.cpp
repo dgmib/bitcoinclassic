@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(AlertApplies)
     SetMockTime(11);
     const std::vector<CAlertKeyData>& alertKeys = Params(CBaseChainParams::MAIN).AlertKeys();
 
-    BOOST_FOREACH(const CAlert& alert, alerts)
+    BOOST_FOREACH(CAlert& alert, alerts)
     {
         BOOST_CHECK(alert.CheckForAnyValidSignature(alertKeys));
     }
