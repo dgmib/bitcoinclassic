@@ -5071,7 +5071,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         uint256 alertHash = alert.GetHash();
         if (pfrom->setKnown.count(alertHash) == 0)
         {
-            if (alert.ProcessAlert(chainparams.AlertKey()))
+            if (alert.ProcessAlert(chainparams.AlertKeys()))
             {
                 // Relay
                 pfrom->setKnown.insert(alertHash);

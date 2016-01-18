@@ -21,6 +21,12 @@ class uint256;
 extern std::map<uint256, CAlert> mapAlerts;
 extern CCriticalSection cs_mapAlerts;
 
+struct CAlertKeyData {
+    std::string owner;
+    std::vector<unsigned char> pubKey;
+    CAlertKeyData(const std::string &strOwner, const std::vector<unsigned char> &vPubKey) : owner(strOwner), pubKey(vPubKey) {}
+};
+
 /** Alerts are for notifying old versions if they become too obsolete and
  * need to upgrade.  The message is displayed in the status bar.
  * Alert messages are broadcast as a vector of signed data.  Unserializing may
@@ -78,6 +84,7 @@ class CAlert : public CUnsignedAlert
 public:
     std::vector<unsigned char> vchMsg;
     std::vector<unsigned char> vchSig;
+    std::string strSender;
 
     CAlert()
     {
@@ -101,7 +108,8 @@ public:
     bool AppliesToMe() const;
     bool RelayTo(CNode* pnode) const;
     bool CheckSignature(const std::vector<unsigned char>& alertKey) const;
-    bool ProcessAlert(const std::vector<unsigned char>& alertKey, bool fThread = true); // fThread means run -alertnotify in a free-running thread
+    bool CheckForAnyValidSignature(const std::vector<CAlertKeyData>& alertKeys);
+    bool ProcessAlert(const std::vector<CAlertKeyData>& alertKeys, bool fThread = true); // fThread means run -alertnotify in a free-running thread
     static void Notify(const std::string& strMessage, bool fThread);
 
     /*
